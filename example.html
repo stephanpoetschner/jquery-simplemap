@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sample for jQuery.simpleMap Plugin</tile>
+    <script src="http://www.google.com/jsapi?key=<my_apikey>"></script>
+    <script>
+        google.load("jquery", "1");
+    </script>
+    <script>
+        google.load("maps", "2");
+    </script>
+
+    <script src="js/jquery.simplemap.js"></script>
+    <script>
+    
+        $(function () {
+            $('#map').css({ 'width': '590px',
+                            'height': '400px',
+                            'margin-bottom': '20px'});
+
+            mapcenter = [];
+            mapcenter.push({ 'type': 'static', 
+                            'zoom': '11',
+                            'longitude': '16.372778',
+                            'latitude': '48.209206' });
+
+            $('#map').createMap();
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="map"></div>
+</body>
+</html>
