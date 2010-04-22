@@ -1,10 +1,6 @@
 "use strict";
 
 (function ($) {
-    // attaches events:
-    // * movend: center, northEast, southWest
-    // * initialized: map
-    
     // centers is a list of objects:
     // * { 'type': 'auto', 
     //     'zoom': '11' }
@@ -17,6 +13,10 @@
     // * { 'type': 'locate',
     //     'zoom': '12',
     //     'address': 'Vienna, Austria' }
+    
+    // triggers events:
+    // * movend: center, northEast, southWest
+    // * initialized: map
     
     if (!GBrowserIsCompatible()) {
         return;
@@ -222,7 +222,11 @@
     // * a string
     // * an object (attributes: longitude, latitude)
     
-    $.fn.findAddress = function (address, settings) {
+    // triggers events:
+    // * markeradded: marker, point
+    // * markermoved: marker, point
+    
+    $.fn.drawMarker = function (address, settings) {
 
         var defaultSettings = { 'markerDraggable': true,
                                 'clearOverlays': true };
