@@ -20,11 +20,11 @@
 
             mapcenter = [];
             mapcenter.push({ 'type': 'static', 
-                            'zoom': '11',
-                            'longitude': '16.372778',
-                            'latitude': '48.209206' });
+                             'longitude': '16.372778',
+                             'latitude': '48.209206' });
 
-            $('#map').createMap();
+            $('#map').createMap({ 'longitude': '16.372778',
+                             'latitude': '48.209206' });
 
         });
     </script>

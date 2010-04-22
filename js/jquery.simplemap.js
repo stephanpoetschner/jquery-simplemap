@@ -1,10 +1,46 @@
 "use strict";
 
 (function ($) {
+    // attaches events:
+    // * movend: center, northEast, southWest
+    
+    // centers is a list of objects:
+    // * { 'type': 'auto', 
+    //     'zoom': '11' }
+    //
+    // * { 'type': 'static', 
+    //     'zoom': '11', 
+    //     'longitude': '16.372778',
+    //     'latitude': '48.209206' }
+    //
+    // * { 'type': 'locate',
+    //     'zoom': '12',
+    //     'address': 'Vienna, Austria' }
     $.fn.createMap = function (centers) {
         if (!GBrowserIsCompatible()) {
             return;
         }
+        
+        centers = centers || [ { 'type': 'auto', } ];
+        
+        if (! $.isArray(centers) ) {
+            centers = [ centers ];
+        }
+        
+        $.each(centers, function (index, value) {
+            if (typeof(value) === 'string') {
+                centers[index] = { 'type': 'locate', 'address': value };
+            }
+            if ( $.isPlainObject(value) && !value.type ) {
+                if (value.longitude && value.latitude) {
+                    value.type = 'static';
+                } else if ( value.address) {
+                    value.type = 'locate';
+                } else {
+                    value.type = 'auto';
+                }
+            }
+        });
 
         var geocoder = new GClientGeocoder();
         $(document).unload(GUnload);
@@ -44,6 +80,7 @@
             addEvents(map, this);
             
             var getCenterMapCallback = function (zoomlevel) {
+                zoomlevel = zoomlevel || 11;
                 var centerMap = function (center) {
                     map.setCenter(center, parseInt(zoomlevel, 10));
                     //alert(center + ': ' + zoomlevel);
