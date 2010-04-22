@@ -12,13 +12,19 @@
         if (typeof(obj) === 'string') {
             return { 'type': 'locate', 'address': obj };
         }
-        if ( $.isPlainObject(obj) && !obj.type ) {
-            if (obj.longitude && obj.latitude) {
-                obj.type = 'static';
-            } else if ( obj.address) {
-                obj.type = 'locate';
-            } else {
-                obj.type = 'auto';
+        if ( $.isPlainObject(obj) ) {
+            if (obj.lat && obj.long) {
+                obj.longitude = obj.long;
+                obj.latitude = obj.lat;
+            }
+            if (!obj.type) {
+                if (obj.longitude && obj.latitude) {
+                    obj.type = 'static';
+                } else if ( obj.address) {
+                    obj.type = 'locate';
+                } else {
+                    obj.type = 'auto';
+                }
             }
         }
         return obj;
