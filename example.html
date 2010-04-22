@@ -19,9 +19,11 @@
                             'margin-bottom': '20px'});
 
             $('#map').createMap({ 'address': 'Wien' });
+            
             $('#map').one('moveend', function () {
-                $(this).findAddress('Wollzeile, Wien');
-            })
+                $(this).drawMarker('Wollzeile, Wien');
+            });
+            
 
         });
     </script>

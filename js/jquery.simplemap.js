@@ -24,7 +24,7 @@
     var geocoder = new GClientGeocoder();
     $(document).unload(GUnload);
     
-    var fuzzyInterpret = function (obj) {
+    var fuzzyInterpretValue = function (obj) {
         obj = obj || {};
         if (typeof(obj) === 'string') {
             return { 'type': 'locate', 'address': obj };
@@ -40,6 +40,19 @@
             return obj;
         }
     };
+    
+    var fuzzyInterpretList = function (list) {
+        list = list || [ { 'type': 'auto' } ];
+        
+        if (! $.isArray(list) ) {
+            list = [ list ];
+        }
+        
+        $.each(list, function (index, value) {
+            list[index] = fuzzyInterpretValue(value)
+        });
+        return list;
+    };
 
     $.fn.createMap = function (centers, settings) {
 
@@ -48,15 +61,7 @@
                                 'onlyNormalMapType': true };
         var settings = $.extend(defaultSettings, settings);
 
-        centers = centers || [ { 'type': 'auto', } ];
-        
-        if (! $.isArray(centers) ) {
-            centers = [ centers ];
-        }
-        
-        $.each(centers, function (index, value) {
-            centers[index] = fuzzyInterpret(value)
-        });
+        centers = fuzzyInterpretList(centers);
 
         this.each(function () {
             var selectedElement = $(this);
@@ -150,7 +155,78 @@
         return this;
     };
 
+    // address is:
+    // * a string
+    // * an object (attributes: longitude, latitude)
     
+    // triggers events:
+    // * markeradded: marker, point
+    // * markermoved: marker, point
+    
+    $.fn.drawMarker = function (address, settings) {
+
+        var defaultSettings = { 'markerDraggable': true,
+                                'clearOverlays': true };
+        var settings = $.extend(defaultSettings, settings);
+        
+        address = fuzzyInterpretValue(address);
+        
+
+        this.each(function () {
+            // element-specific code here
+            // "settings" may be used here
+            var selectedElement = $(this);
+            
+            var map = $(this).data('map');
+            if (!map) {
+                return;
+            }
+        
+            var addAddressToMap = function (point) {
+            
+                if (settings.clearOverlays) {
+                    map.clearOverlays();
+                }
+                
+                var marker = new GMarker(point, {draggable: settings.markerDraggable});
+                if (settings.markerDraggable) {
+                    GEvent.addListener(marker, "dragend", function (point) {
+                        selectedElement.trigger('markermoved', [ marker, point ]);
+                    });
+                }
+                
+                map.addOverlay(marker);
+
+                map.setCenter(point, 13);
+                selectedElement.trigger('markeradded', [ marker, point ]);
+            };
+            
+            if (address.type === 'auto') {
+                var point = map.getCenter();
+                addAddressToMap(point);
+            } else if (address.type === 'static') {
+                var point = new GLatLng(address.latitude, address.longitude);
+                addAddressToMap(point);
+            } else if (address.type === 'locate' && geocoder) {
+                geocoder.getLocations(address.address, function (response) {
+                    var point = null;
+                    if (!response || response.Status.code !== 200 || 
+                            response.Placemark.length === 0) {
+                        // alert("Sorry, we were unable to geocode that address");
+                        point = map.getCenter()
+                   } else {
+                        place = response.Placemark[0];
+                        point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
+                    }
+                    addAddressToMap(point);
+
+               });
+            }
+        });
+
+        return this;
+    };
+
     
     $.fn.drawMarkers = function (userSettings, coloredMarkers) {
         var defaultSettings = {'addressSelector': '.address',
@@ -218,78 +294,6 @@
         return this;
     };
     
-    // address is:
-    // * a string
-    // * an object (attributes: longitude, latitude)
-    
-    // triggers events:
-    // * markeradded: marker, point
-    // * markermoved: marker, point
-    
-    $.fn.drawMarker = function (address, settings) {
-
-        var defaultSettings = { 'markerDraggable': true,
-                                'clearOverlays': true };
-        var settings = $.extend(defaultSettings, settings);
-        
-        address = fuzzyInterpret(address);
-        
-
-        this.each(function () {
-            // element-specific code here
-            // "settings" may be used here
-            var selectedElement = $(this);
-            
-            var map = $(this).data('map');
-            if (!map) {
-                return;
-            }
-        
-            var addAddressToMap = function (point) {
-            
-                if (settings.clearOverlays) {
-                    map.clearOverlays();
-                }
-                
-                var marker = new GMarker(point, {draggable: settings.markerDraggable});
-                if (settings.markerDraggable) {
-                    GEvent.addListener(marker, "dragend", function (point) {
-                        selectedElement.trigger('markermoved', [ marker, point ]);
-                    });
-                }
-                
-                map.addOverlay(marker);
-
-                map.setCenter(point, 13);
-                selectedElement.trigger('markeradded', [ marker, point ]);
-            };
-            
-            
-            if (address.type === 'auto') {
-                var point = map.getCenter();
-                addAddressToMap(point);
-            } else if (address.type === 'static') {
-                var point = new GLatLng(address.latitude, address.longitude);
-                addAddressToMap(point);
-            } else if (address.type === 'locate' && geocoder) {
-                geocoder.getLocations(address.address, function (response) {
-                    var point = null;
-                    if (!response || response.Status.code !== 200 || 
-                            response.Placemark.length === 0) {
-                        // alert("Sorry, we were unable to geocode that address");
-                        point = map.getCenter()
-                   } else {
-                        place = response.Placemark[0];
-                        point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
-                    }
-                    addAddressToMap(point);
-
-               });
-            }
-        });
-
-        return this;
-    };
 
     $.fn.trimVal = function () {
         return $.trim($(this).val());
