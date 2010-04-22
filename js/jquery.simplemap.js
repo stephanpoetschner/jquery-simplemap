@@ -31,15 +31,15 @@
             }
             var map = new GMap2(this);
             map.setUIToDefault();
-	    
-	    var customUI = map.getDefaultUI();
-	    customUI.zoom.scrollwheel = false;
-	    map.setUI(customUI);
 
-	    map.removeMapType(G_HYBRID_MAP);
-	    map.removeMapType(G_SATELLITE_MAP);
-	    map.removeMapType(G_PHYSICAL_MAP);
-	    
+            var customUI = map.getDefaultUI();
+            customUI.zoom.scrollwheel = false;
+            map.setUI(customUI);
+            
+            map.removeMapType(G_HYBRID_MAP);
+            map.removeMapType(G_SATELLITE_MAP);
+            map.removeMapType(G_PHYSICAL_MAP);
+            
             selectedElement.data('map', map);
             addEvents(map, this);
             
@@ -166,7 +166,7 @@
     $.fn.findAddress = function (address, userSettings) {
 
         var defaultSettings = { markerDraggable: true,
-				clearOverlays: true };
+                clearOverlays: true };
         var settings = $.extend(defaultSettings, userSettings);
         
         if (typeof(address) === 'string') {
@@ -187,8 +187,8 @@
             var addAddressToMap = function (point) {
             
                 if (settings.clearOverlays) {
-		    map.clearOverlays();
-		}
+            map.clearOverlays();
+        }
                 
                 var marker = new GMarker(point, {draggable: settings.markerDraggable});
                 if (settings.markerDraggable) {
@@ -224,8 +224,8 @@
                   alert('missing geocoder');
                 }
             } else {
-		var point = new GLatLng(address.latitude, address.longitude);
-		addAddressToMap(point);
+        var point = new GLatLng(address.latitude, address.longitude);
+        addAddressToMap(point);
             }
         });
 
@@ -233,7 +233,7 @@
     };
 
     $.fn.trimVal = function () {
-	return $.trim($(this).val());
+    return $.trim($(this).val());
     };
     
     $.serializeAddress = function (userSettings) {
@@ -241,15 +241,15 @@
                                 'zip': '',
                                 'city': '',
                                 'country': 'Ã–sterreich'
-				};
+                };
 
         var s = $.extend(defaultSettings, userSettings);
-	
-	var address = (s.street === "" ? "" : s.street + ", ") +
-			(s.zip === "" ? "" : s.zip + ' ') +
-			(s.city === "" ? "" : s.city) +
-			(s.country === "" ? "" : ", " + s.country);
-	return address;
+    
+    var address = (s.street === "" ? "" : s.street + ", ") +
+            (s.zip === "" ? "" : s.zip + ' ') +
+            (s.city === "" ? "" : s.city) +
+            (s.country === "" ? "" : ", " + s.country);
+    return address;
     };
   
 }) (jQuery);
