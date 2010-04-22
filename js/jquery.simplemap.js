@@ -16,11 +16,14 @@
     // * { 'type': 'locate',
     //     'zoom': '12',
     //     'address': 'Vienna, Austria' }
-    $.fn.createMap = function (centers) {
+    $.fn.createMap = function (centers, settings) {
         if (!GBrowserIsCompatible()) {
             return;
         }
-        
+
+        var defaultSettings = { 'defaultZoom': 11 };
+        var settings = $.extend(defaultSettings, settings);
+
         centers = centers || [ { 'type': 'auto', } ];
         
         if (! $.isArray(centers) ) {
@@ -80,7 +83,7 @@
             addEvents(map, this);
             
             var getCenterMapCallback = function (zoomlevel) {
-                zoomlevel = zoomlevel || 11;
+                zoomlevel = zoomlevel || settings.defaultZoom;
                 var centerMap = function (center) {
                     map.setCenter(center, parseInt(zoomlevel, 10));
                     //alert(center + ': ' + zoomlevel);

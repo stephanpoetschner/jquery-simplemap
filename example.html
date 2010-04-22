@@ -18,13 +18,9 @@
                             'height': '400px',
                             'margin-bottom': '20px'});
 
-            mapcenter = [];
-            mapcenter.push({ 'type': 'static', 
-                             'longitude': '16.372778',
-                             'latitude': '48.209206' });
-
-            $('#map').createMap({ 'longitude': '16.372778',
-                             'latitude': '48.209206' });
+            $('#map').createMap({ 'zoom': 15,
+                                  'longitude': '16.372778',
+                                  'latitude': '48.209206' });
 
         });
     </script>
