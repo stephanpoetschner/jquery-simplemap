@@ -141,16 +141,14 @@
                     }
                 } else if (value.type === 'locate') {
 
-                    var foundAddress = function (response) {
-                        if (response && response.Status.code === 200) {
-                            place = response.Placemark[0];
-                            var center = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
-                            callback(center);
+                    var foundAddress = function (point) {
+                        if (point !== null) {
+                            callback(point);
                         }
                     };
                 
                     if (geocoder && value.address !== '') {
-                        geocoder.getLocations(value.address, foundAddress);
+                        geocoder.getLatLng(value.address, foundAddress);
                         return false;
                     }
                 }
@@ -213,15 +211,10 @@
                     var point = new GLatLng(address.latitude, address.longitude);
                     addAddressToMap(point);
                 } else if (address.type === 'locate' && geocoder) {
-                    geocoder.getLocations(address.address, function (response) {
-                        var point = null;
-                        if (!response || response.Status.code !== 200 || 
-                                response.Placemark.length === 0) {
+                    geocoder.getLatLng(address.address, function (point) {
+                        if (point === null) {
                             // alert("Sorry, we were unable to geocode that address");
                             point = map.getCenter()
-                       } else {
-                            place = response.Placemark[0];
-                            point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
                         }
                         addAddressToMap(point);
                    });

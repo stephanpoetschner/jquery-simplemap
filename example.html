@@ -31,13 +31,16 @@
             
             $('#map').createMap();
             
-            
-
+            $('#where').keyup(function () {
+                var value = $(this).val();
+                $('#map').drawMarker(value);
+            });
         });
     </script>
 </head>
 
 <body>
+    <input type="text" id="where" />
     <div id="map"></div>
 </body>
 </html>
