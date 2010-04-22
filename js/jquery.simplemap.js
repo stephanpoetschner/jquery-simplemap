@@ -156,22 +156,22 @@
     // address is:
     // * a string
     // * an object (attributes: longitude, latitude)
+    // * a list of objects
     
     // triggers events:
     // * markeradded: marker, point
     // * markermoved: marker, point
-    $.fn.drawMarker = function (address, settings) {
+    $.fn.drawMarker = function (addresses, settings) {
 
         var defaultSettings = { 'markerDraggable': true,
-                                'clearOverlays': true };
+                                'clearOverlays': true,
+                                'center': true };
         var settings = $.extend(defaultSettings, settings);
         
-        address = fuzzyInterpretValue(address);
+        addresses = fuzzyInterpretList(addresses);
         
 
         this.each(function () {
-            // element-specific code here
-            // "settings" may be used here
             var selectedElement = $(this);
             
             var map = $(this).data('map');
@@ -179,118 +179,52 @@
                 return;
             }
         
-            var addAddressToMap = function (point) {
-            
-                if (settings.clearOverlays) {
-                    map.clearOverlays();
-                }
-                
-                var marker = new GMarker(point, {draggable: settings.markerDraggable});
-                if (settings.markerDraggable) {
-                    GEvent.addListener(marker, "dragend", function (point) {
-                        selectedElement.trigger('markermoved', [ marker, point ]);
-                    });
-                }
-                
-                map.addOverlay(marker);
-
-                map.setCenter(point, 13);
-                selectedElement.trigger('markeradded', [ marker, point ]);
-            };
-            
-            if (address.type === 'auto') {
-                var point = map.getCenter();
-                addAddressToMap(point);
-            } else if (address.type === 'static') {
-                var point = new GLatLng(address.latitude, address.longitude);
-                addAddressToMap(point);
-            } else if (address.type === 'locate' && geocoder) {
-                geocoder.getLocations(address.address, function (response) {
-                    var point = null;
-                    if (!response || response.Status.code !== 200 || 
-                            response.Placemark.length === 0) {
-                        // alert("Sorry, we were unable to geocode that address");
-                        point = map.getCenter()
-                   } else {
-                        place = response.Placemark[0];
-                        point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
-                    }
-                    addAddressToMap(point);
-
-               });
+            if (settings.clearOverlays) {
+                map.clearOverlays();
             }
-        });
-
-        return this;
-    };
-
-    
-    $.fn.drawMarkers = function (userSettings, coloredMarkers) {
-        var defaultSettings = {'addressSelector': '.address',
-                                'latitudeSelector': '.latitude',
-                                'longitudeSelector': '.longitude',
-                                'defaultColor': 'blue',
-                                'colors': {
-                                    '.institute': 'red',
-                                    '.teacher': 'blue'
-                                }};
-
-        var settings = $.extend(defaultSettings, userSettings);
-        
-        var defaultColoredMarkers = {
-            'blue': 'http://gmaps-samples.googlecode.com/svn/trunk/markers/blue/blank.png',
-            'red': 'http://gmaps-samples.googlecode.com/svn/trunk/markers/red/blank.png'
-        };
-        coloredMarkers = $.extend(defaultColoredMarkers, coloredMarkers);
-
-        this.each(function () {
-            // element-specific code here
-            // "settings" may be used here
-            var map = $(this).data('map');
-            var addressSelector = settings.addressSelector;
-            var latitudeSelector = settings.latitudeSelector;
-            var longitudeSelector = settings.longitudeSelector;
             
-
-            map.clearOverlays();
-            $(addressSelector).each(function () {
-                var address = $(this);
-                var lat = $(latitudeSelector, this).val();
-                var lng = $(longitudeSelector, this).val();
-                
-                if (lat.match(/\d+.\d+/) && lng.match(/\d+.\d+/)) {
-    
-                    var color = settings.defaultColor;
+            $.each(addresses, function (index, address) {
+                var addAddressToMap = function (point) {
+                    var marker = new GMarker(point, {draggable: settings.markerDraggable});
+                    if (settings.markerDraggable) {
+                        GEvent.addListener(marker, "dragend", function (point) {
+                            selectedElement.trigger('markermoved', [ marker, point ]);
+                        });
+                    }
                     
-                    $.each(settings.colors, function (key, value) {
-                        if (address.is(key)) {
-                            color = value;
-                        }
-                    });
-
-                    // Create our "tiny" marker icon
-                    var Icon = new GIcon(G_DEFAULT_ICON);
-                    Icon.image = coloredMarkers[color];
-                    
-                    // Set up our GMarkerOptions object
-                    var markerOptions = { icon: Icon };
-
-                    var marker = new GMarker(new GLatLng(lat, lng), markerOptions);
-                    GEvent.addListener(marker, "click", function () {
-                        // var position = map.fromLatLngToDivPixel(this.getPoint());
-                        // position.x = position.x + 20;
-                        // position.y = position.y - 10;
-                        var link = address.find('a:first');
-                        link.click();
-                    });
                     map.addOverlay(marker);
+    
+                    if (settings.center) {
+                        map.setCenter(point, address.zoom || 13);
+                    }
+                    selectedElement.trigger('markeradded', [ marker, point ]);
+                };
+            
+                if (address.type === 'auto') {
+                    var point = map.getCenter();
+                    addAddressToMap(point);
+                } else if (address.type === 'static') {
+                    var point = new GLatLng(address.latitude, address.longitude);
+                    addAddressToMap(point);
+                } else if (address.type === 'locate' && geocoder) {
+                    geocoder.getLocations(address.address, function (response) {
+                        var point = null;
+                        if (!response || response.Status.code !== 200 || 
+                                response.Placemark.length === 0) {
+                            // alert("Sorry, we were unable to geocode that address");
+                            point = map.getCenter()
+                       } else {
+                            place = response.Placemark[0];
+                            point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
+                        }
+                        addAddressToMap(point);
+                   });
                 }
             });
         });
 
         return this;
     };
-    
 
     $.fn.trimVal = function () {
         return $.trim($(this).val());

@@ -21,7 +21,7 @@
             $('#map').createMap({ 'address': 'Wien' });
             
             $('#map').one('moveend', function () {
-                $(this).drawMarker('Wollzeile, Wien');
+                $(this).drawMarker([ { address: 'Wollzeile, Wien' }, { address: 'Denisgasse, Wien' } ]);
             });
             
 
