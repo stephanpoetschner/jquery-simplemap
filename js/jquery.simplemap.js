@@ -1,23 +1,6 @@
 "use strict";
 
 (function ($) {
-    // centers is a list of objects:
-    // * { 'type': 'auto', 
-    //     'zoom': '11' }
-    //
-    // * { 'type': 'static', 
-    //     'zoom': '11', 
-    //     'longitude': '16.372778',
-    //     'latitude': '48.209206' }
-    //
-    // * { 'type': 'locate',
-    //     'zoom': '12',
-    //     'address': 'Vienna, Austria' }
-    
-    // triggers events:
-    // * movend: center, northEast, southWest
-    // * initialized: map
-    
     if (!GBrowserIsCompatible()) {
         return;
     }
@@ -54,6 +37,22 @@
         return list;
     };
 
+    // centers is a list of objects:
+    // * { 'type': 'auto', 
+    //     'zoom': '11' }
+    //
+    // * { 'type': 'static', 
+    //     'zoom': '11', 
+    //     'longitude': '16.372778',
+    //     'latitude': '48.209206' }
+    //
+    // * { 'type': 'locate',
+    //     'zoom': '12',
+    //     'address': 'Vienna, Austria' }
+    
+    // triggers events:
+    // * movend: center, northEast, southWest
+    // * initialized: map
     $.fn.createMap = function (centers, settings) {
 
         var defaultSettings = { 'defaultZoom': 11,
