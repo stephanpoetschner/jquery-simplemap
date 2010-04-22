@@ -25,8 +25,9 @@
                                     { 'clearOverlays': false });
             });
             
-            $('#map').bind('markeradded', function (event, marker, point) {
-                console.log('ll: ' + point.lng() + ' / lt: ' + point.lat() );
+            $('#map').bind('markeradded markermoved', function (event, marker, point) {
+                $('#lng').val(point.lng());
+                $('#lat').val(point.lat());
             });
             
             $('#map').createMap();
@@ -42,5 +43,7 @@
 <body>
     <input type="text" id="where" />
     <div id="map"></div>
+    <input type="text" id="lat" />
+    <input type="text" id="lng" />
 </body>
 </html>
