@@ -20,8 +20,8 @@
             } else {
                 obj.type = 'auto';
             }
-            return obj;
         }
+        return obj;
     };
     
     var fuzzyInterpretList = function (list) {
