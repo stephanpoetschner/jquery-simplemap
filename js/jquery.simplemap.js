@@ -3,6 +3,7 @@
 (function ($) {
     // attaches events:
     // * movend: center, northEast, southWest
+    // * initialized: map
     
     // centers is a list of objects:
     // * { 'type': 'auto', 
@@ -21,7 +22,9 @@
             return;
         }
 
-        var defaultSettings = { 'defaultZoom': 11 };
+        var defaultSettings = { 'defaultZoom': 11,
+                                'enableScroll': true,
+                                'onlyNormalMapType': true };
         var settings = $.extend(defaultSettings, settings);
 
         centers = centers || [ { 'type': 'auto', } ];
@@ -52,6 +55,8 @@
             var selectedElement = $(this);
             
             var addEvents = function (map, domElement) {
+                $(domElement).trigger('initialized', [ map ]);
+            
                 GEvent.addListener(map, "moveend", function () {
                     var center = map.getCenter();
                     var bounds = map.getBounds();
@@ -72,21 +77,25 @@
             map.setUIToDefault();
 
             var customUI = map.getDefaultUI();
-            customUI.zoom.scrollwheel = false;
+            if (!settings.enableScroll) {
+                customUI.zoom.scrollwheel = false;
+            }
             map.setUI(customUI);
             
-            map.removeMapType(G_HYBRID_MAP);
-            map.removeMapType(G_SATELLITE_MAP);
-            map.removeMapType(G_PHYSICAL_MAP);
-            
             selectedElement.data('map', map);
+            
+            if (settings.onlyNormalMapType) {
+                map.removeMapType(G_HYBRID_MAP);
+                map.removeMapType(G_SATELLITE_MAP);
+                map.removeMapType(G_PHYSICAL_MAP);
+            }
+            
             addEvents(map, this);
             
             var getCenterMapCallback = function (zoomlevel) {
                 zoomlevel = zoomlevel || settings.defaultZoom;
                 var centerMap = function (center) {
                     map.setCenter(center, parseInt(zoomlevel, 10));
-                    //alert(center + ': ' + zoomlevel);
 
                     var bounds = map.getBounds();
                     var southWest = bounds.getSouthWest();
