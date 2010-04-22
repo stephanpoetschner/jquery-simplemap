@@ -19,7 +19,14 @@
                             'margin-bottom': '20px'});
 
             $('#map').one('moveend', function () {
-                $(this).drawMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien' ]);
+                $(this).drawMarker(); // draw Marker in the center of current view
+                $(this).drawMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien', 
+                                     { 'lat': 48.2, 'long': 36.3674 }, 'Tulln' ], 
+                                    { 'clearOverlays': false });
+            });
+            
+            $('#map').bind('markeradded', function (event, marker, point) {
+                console.log('ll: ' + point.lng() + ' / lt: ' + point.lat() );
             });
             
             $('#map').createMap();
