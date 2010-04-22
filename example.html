@@ -18,7 +18,10 @@
                             'height': '400px',
                             'margin-bottom': '20px'});
 
-            $('#map').createMap('Wien');
+            $('#map').createMap({ 'address': 'Wien' });
+            $('#map').one('moveend', function () {
+                $(this).findAddress('Denisgasse 26, Wien');
+            })
 
         });
     </script>

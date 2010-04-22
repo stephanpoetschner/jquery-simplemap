@@ -17,10 +17,31 @@
     // * { 'type': 'locate',
     //     'zoom': '12',
     //     'address': 'Vienna, Austria' }
-    $.fn.createMap = function (centers, settings) {
-        if (!GBrowserIsCompatible()) {
-            return;
+    
+    if (!GBrowserIsCompatible()) {
+        return;
+    }
+    var geocoder = new GClientGeocoder();
+    $(document).unload(GUnload);
+    
+    var fuzzyInterpret = function (obj) {
+        obj = obj || {};
+        if (typeof(obj) === 'string') {
+            return { 'type': 'locate', 'address': obj };
         }
+        if ( $.isPlainObject(obj) && !obj.type ) {
+            if (obj.longitude && obj.latitude) {
+                obj.type = 'static';
+            } else if ( obj.address) {
+                obj.type = 'locate';
+            } else {
+                obj.type = 'auto';
+            }
+            return obj;
+        }
+    };
+
+    $.fn.createMap = function (centers, settings) {
 
         var defaultSettings = { 'defaultZoom': 11,
                                 'enableScroll': true,
@@ -34,22 +55,8 @@
         }
         
         $.each(centers, function (index, value) {
-            if (typeof(value) === 'string') {
-                centers[index] = { 'type': 'locate', 'address': value };
-            }
-            if ( $.isPlainObject(value) && !value.type ) {
-                if (value.longitude && value.latitude) {
-                    value.type = 'static';
-                } else if ( value.address) {
-                    value.type = 'locate';
-                } else {
-                    value.type = 'auto';
-                }
-            }
+            centers[index] = fuzzyInterpret(value)
         });
-
-        var geocoder = new GClientGeocoder();
-        $(document).unload(GUnload);
 
         this.each(function () {
             var selectedElement = $(this);
@@ -211,70 +218,69 @@
         return this;
     };
     
+    // address is:
+    // * a string
+    // * an object (attributes: longitude, latitude)
     
-    $.fn.findAddress = function (address, userSettings) {
+    $.fn.findAddress = function (address, settings) {
 
-        var defaultSettings = { markerDraggable: true,
-                clearOverlays: true };
-        var settings = $.extend(defaultSettings, userSettings);
+        var defaultSettings = { 'markerDraggable': true,
+                                'clearOverlays': true };
+        var settings = $.extend(defaultSettings, settings);
         
-        if (typeof(address) === 'string') {
-            if ($.trim(address) === "") {
-                return;
-            }
-        }
+        address = fuzzyInterpret(address);
         
-        // element-specific code here
-        // "settings" may be used here
-        var map = $(this).data('map');
-        var geocoder = new GClientGeocoder();
 
         this.each(function () {
-        
-            var jquery_element = $(this);
+            // element-specific code here
+            // "settings" may be used here
+            var selectedElement = $(this);
             
+            var map = $(this).data('map');
+            if (!map) {
+                return;
+            }
+        
             var addAddressToMap = function (point) {
             
                 if (settings.clearOverlays) {
-            map.clearOverlays();
-        }
+                    map.clearOverlays();
+                }
                 
                 var marker = new GMarker(point, {draggable: settings.markerDraggable});
                 if (settings.markerDraggable) {
                     GEvent.addListener(marker, "dragend", function (point) {
-                        jquery_element.trigger('markermoved', [ marker, point ]);
+                        selectedElement.trigger('markermoved', [ marker, point ]);
                     });
                 }
                 
                 map.addOverlay(marker);
 
                 map.setCenter(point, 13);
-                jquery_element.trigger('markeradded', [ marker, point ]);
+                selectedElement.trigger('markeradded', [ marker, point ]);
             };
             
             
-            
-            if (typeof(address) === 'string') {
-                if (geocoder) {
-                    geocoder.getLocations(address, function (response) {
-                        var point = null;
-                        if (!response || response.Status.code !== 200) {
-                            // alert("Sorry, we were unable to geocode that address");
-                            point = map.getCenter()
+            if (address.type === 'auto') {
+                var point = map.getCenter();
+                addAddressToMap(point);
+            } else if (address.type === 'static') {
+                var point = new GLatLng(address.latitude, address.longitude);
+                addAddressToMap(point);
+            } else if (address.type === 'locate' && geocoder) {
+                geocoder.getLocations(address.address, function (response) {
+                    var point = null;
+                    if (!response || response.Status.code !== 200 || 
+                            response.Placemark.length === 0) {
+                        // alert("Sorry, we were unable to geocode that address");
+                        point = map.getCenter()
+                   } else {
+                        place = response.Placemark[0];
+                        point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
+                    }
+                    addAddressToMap(point);
 
-                       } else {
-                            place = response.Placemark[0];
-                            point = new GLatLng(place.Point.coordinates[1], place.Point.coordinates[0]);
-                        }
-                        addAddressToMap(point);
-
-                   });
-                } else {
-                  alert('missing geocoder');
-                }
-            } else {
-        var point = new GLatLng(address.latitude, address.longitude);
-        addAddressToMap(point);
+               });
             }
         });
 
@@ -282,7 +288,7 @@
     };
 
     $.fn.trimVal = function () {
-    return $.trim($(this).val());
+        return $.trim($(this).val());
     };
     
     $.serializeAddress = function (userSettings) {
@@ -294,11 +300,11 @@
 
         var s = $.extend(defaultSettings, userSettings);
     
-    var address = (s.street === "" ? "" : s.street + ", ") +
-            (s.zip === "" ? "" : s.zip + ' ') +
-            (s.city === "" ? "" : s.city) +
-            (s.country === "" ? "" : ", " + s.country);
-    return address;
+        var address = (s.street === "" ? "" : s.street + ", ") +
+                (s.zip === "" ? "" : s.zip + ' ') +
+                (s.city === "" ? "" : s.city) +
+                (s.country === "" ? "" : ", " + s.country);
+        return address;
     };
   
 }) (jQuery);
