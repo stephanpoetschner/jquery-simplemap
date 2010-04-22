@@ -80,7 +80,6 @@
             
             // *****
             // initializing controller elements
-            // 'this' is the map element
             if (selectedElement.length !== 1) {
                 throw 'Containing more than one element.';
             }
@@ -161,7 +160,6 @@
     // triggers events:
     // * markeradded: marker, point
     // * markermoved: marker, point
-    
     $.fn.drawMarker = function (address, settings) {
 
         var defaultSettings = { 'markerDraggable': true,
