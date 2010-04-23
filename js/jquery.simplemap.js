@@ -12,10 +12,10 @@
         if (typeof(obj) === 'string') {
             return { 'type': 'locate', 'address': obj };
         }
-        if ( $.isPlainObject(obj) ) {
-            if (obj.lat && obj.long) {
-                obj.longitude = obj.long;
-                obj.latitude = obj.lat;
+        if ( typeof(obj) === 'object' ) {
+            if (obj.lat && obj.lng) {
+                obj.longitude = ($.isFunction(obj.lng) ? obj.lng() : obj.lng);
+                obj.latitude = ($.isFunction(obj.lat) ? obj.lat() : obj.lat);
             }
             if (!obj.type) {
                 if (obj.longitude && obj.latitude) {
