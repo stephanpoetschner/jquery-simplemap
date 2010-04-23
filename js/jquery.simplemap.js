@@ -57,7 +57,7 @@
     //     'address': 'Vienna, Austria' }
     
     // triggers events:
-    // * movend: center, northEast, southWest
+    // * moveend: center, northEast, southWest
     // * initialized: map
     $.fn.createMap = function (centers, settings) {
 
