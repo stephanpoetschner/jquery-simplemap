@@ -62,7 +62,7 @@
     $.fn.createMap = function (centers, settings) {
 
         var defaultSettings = { 'defaultZoom': 11,
-                                'enableScroll': true,
+                                'scroll': true,
                                 'onlyNormalMapType': true };
         var settings = $.extend(defaultSettings, settings);
 
@@ -93,7 +93,7 @@
             map.setUIToDefault();
 
             var customUI = map.getDefaultUI();
-            if (!settings.enableScroll) {
+            if (!settings.scroll) {
                 customUI.zoom.scrollwheel = false;
             }
             map.setUI(customUI);
@@ -167,13 +167,16 @@
     // * markermoved: marker, point
     $.fn.drawMarker = function (addresses, settings) {
 
-        var defaultSettings = { 'markerDraggable': true,
-                                'clearOverlays': true,
-                                'center': true };
+        var defaultSettings = { 'clear': true,
+                                'center': true,
+                                'draggable': true,
+                                'options': {} };
         var settings = $.extend(defaultSettings, settings);
         
         addresses = fuzzyInterpretList(addresses);
         
+        var markerOptions = $.extend({ 'draggable': settings.draggable },
+                                        settings.options );
 
         this.each(function () {
             var selectedElement = $(this);
@@ -183,14 +186,14 @@
                 return;
             }
         
-            if (settings.clearOverlays) {
+            if (settings.clear) {
                 map.clearOverlays();
             }
             
             $.each(addresses, function (index, address) {
                 var addAddressToMap = function (point) {
-                    var marker = new GMarker(point, {draggable: settings.markerDraggable});
-                    if (settings.markerDraggable) {
+                    var marker = new GMarker(point, markerOptions);
+                    if (settings.draggable) {
                         GEvent.addListener(marker, "dragend", function (point) {
                             selectedElement.trigger('markermoved', [ marker, point ]);
                         });
