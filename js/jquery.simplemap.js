@@ -75,6 +75,23 @@
                 $(domElement).trigger('initialized', [ map ]);
             
                 // see http://code.google.com/intl/de-AT/apis/maps/documentation/reference.html#GMap2.Events
+                GEvent.addListener(map, "addoverlay", function (overlay) {
+                    var overlays = selectedElement.data('_overlays') || {};
+                    var name = $(overlay).data('_name');
+                    var named_overlays = overlays[name] || [];
+                    named_overlays.push(overlay);
+                    overlays[name] = named_overlays;
+                    selectedElement.data('_overlays', overlays);
+                });
+                GEvent.addListener(map, "removeoverlay", function (overlay) {
+                    var overlays = selectedElement.data('_overlays');
+                    var name = $(overlay).data('_name');
+                    var named_overlays = overlays[name];
+                    named_overlays.splice(named_overlays.indexOf(overlay), 1);
+                    overlays[name] = named_overlays;
+                    selectedElement.data('_overlays', overlays);
+                });
+                
                 GEvent.addListener(map, "moveend", function () {
                     var center = map.getCenter();
                     var bounds = map.getBounds();
@@ -113,7 +130,7 @@
             }
             map.setUI(customUI);
             
-            selectedElement.data('map', map);
+            selectedElement.data('_map', map);
             
             if (settings.onlyNormalMapType) {
                 map.removeMapType(G_HYBRID_MAP);
@@ -184,7 +201,9 @@
 
         var defaultSettings = { 'clear': true,
                                 'center': true,
+                                'defaultZoom': 13,
                                 'draggable': true,
+                                'name': 'undefined',
                                 'options': {} };
         var settings = $.extend(defaultSettings, settings);
         
@@ -196,7 +215,7 @@
         this.each(function () {
             var selectedElement = $(this);
             
-            var map = $(this).data('map');
+            var map = $(this).data('_map');
             if (!map) {
                 return;
             }
@@ -207,19 +226,20 @@
             
             $.each(addresses, function (index, address) {
                 var addAddressToMap = function (point) {
-                    var marker = new GMarker(point, markerOptions);
+                    var markerOverlay = new GMarker(point, markerOptions);
                     if (settings.draggable) {
-                        GEvent.addListener(marker, "dragend", function (point) {
-                            selectedElement.trigger('markermoved', [ marker, point ]);
+                        GEvent.addListener(markerOverlay, "dragend", function (point) {
+                            selectedElement.trigger('markermoved', [ markerOverlay, point ]);
                         });
                     }
                     
-                    map.addOverlay(marker);
+                    $(markerOverlay).data('_name', settings.name)
+                    map.addOverlay(markerOverlay);
     
                     if (settings.center) {
-                        map.setCenter(point, address.zoom || 13);
+                        map.setCenter(point, address.zoom || settins.defaultZoom);
                     }
-                    selectedElement.trigger('markeradded', [ marker, point ]);
+                    selectedElement.trigger('markeradded', [ markerOverlay, point ]);
                 };
             
                 if (address.type === 'auto') {
@@ -231,7 +251,7 @@
                 } else if (address.type === 'locate' && geocoder) {
                     geocoder.getLatLng(address.address, function (point) {
                         if (point === null) {
-                            // alert("Sorry, we were unable to geocode that address");
+                            // unable to geocode that address
                             point = map.getCenter()
                         }
                         addAddressToMap(point);
@@ -240,6 +260,32 @@
             });
         });
 
+        return this;
+    };
+
+    $.fn.removeOverlays = function (name) {
+        this.each(function () {
+            var selectedElement = $(this);
+            var map = selectedElement.data('_map');
+            var overlays = selectedElement.data('_overlays') || {};
+            
+            var removeNamedOverlays = function (name) {
+                var named_overlays = overlays[name] || [];
+                named_overlays = named_overlays.slice(); // clone array
+                $.each(named_overlays, function (index, overlay) {
+                    map.removeOverlay(overlay);
+                });
+                overlays[name] = [];
+            };
+            
+            if (name) {
+                removeNamedOverlays(name);
+            } else {
+                $.each(overlays, function (name, overlay) {
+                    removeNamedOverlays(name);
+                });
+            }
+        });
         return this;
     };
 
