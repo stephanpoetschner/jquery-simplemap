@@ -20,9 +20,40 @@
 
             $('#map').one('moveend', function () {
                 $(this).drawMarker(); // draw Marker in the center of current view
+                // draw multiple markers
                 $(this).drawMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien', 
-                                     { 'lat': 48.2, 'long': 36.3674 }, 'Tulln' ], 
-                                    { 'clearOverlays': false });
+                                     { 'lat': 48.2, 'long': 36.3674 }, 
+                                     { address: 'Tulln', zoom: 10 } ], 
+                                     { 'clear': false });
+                
+                // draw marker with custom icon
+
+                // Sample custom marker code created with Google Map Custom Marker Maker
+                // http://www.powerhut.co.uk/googlemaps/custom_markers.php
+                
+                var myIcon = new GIcon();
+                myIcon.image = 'img/image.png';
+                myIcon.shadow = 'img/shadow.png';
+                myIcon.iconSize = new GSize(16,16);
+                myIcon.shadowSize = new GSize(24,16);
+                myIcon.iconAnchor = new GPoint(8,16);
+                myIcon.infoWindowAnchor = new GPoint(8,0);
+                myIcon.printImage = 'img/printImage.gif';
+                myIcon.mozPrintImage = 'img/mozPrintImage.gif';
+                myIcon.printShadow = 'img/printShadow.gif';
+                myIcon.transparent = 'img/transparent.png';
+                myIcon.imageMap = [ 8,0, 9,1, 10,2, 11,3, 12,4, 12,5, 12,6,
+                                    12,7, 12,8, 11,9, 12,10, 13,11, 14,12,
+                                    15,13, 15,14, 14,15, 13,15, 12,14, 11,13,
+                                    4,12, 3,11, 2,10, 1,9, 0,8, 0,7, 0,6, 0,5,
+                                    0,4, 1,3, 2,2, 3,1, 4,0];
+                var options = { 'icon': myIcon };
+                $(this).drawMarker('3442 Asparn',
+                                    { 'clear': false,
+                                        'center': false,
+                                        'draggable': false,
+                                        'options': options });
+
             });
             
             $('#map').bind('markeradded markermoved', function (event, marker, point) {
