@@ -87,14 +87,7 @@
                 delegatedEvents = delegatedEvents.split(' ');
                 $.each(delegatedEvents, function (index, eventname) {
                     GEvent.addListener(map, eventname, function () {
-                        var params = [];
-                        
-                        $.each(arguments, function (index, param) {
-                            if (index > 0) {
-                                params.push(param);
-                            }
-                        });
-                        $(domElement).trigger('map' + eventname, params);
+                        $(domElement).trigger('map' + eventname, arguments);
                     });
                 });
             };
