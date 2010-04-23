@@ -74,6 +74,7 @@
             var addEvents = function (map, domElement) {
                 $(domElement).trigger('initialized', [ map ]);
             
+                // see http://code.google.com/intl/de-AT/apis/maps/documentation/reference.html#GMap2.Events
                 GEvent.addListener(map, "moveend", function () {
                     var center = map.getCenter();
                     var bounds = map.getBounds();
@@ -83,7 +84,13 @@
                     $(domElement).trigger('moveend', [center, northEast, southWest]);
                 });
                 
-                var delegatedEvents = "click dblclick";
+                var delegatedEvents = "addmaptype removemaptype click dblclick";
+                delegatedEvents += " singlerightclick movestart move zoomend";
+                delegatedEvents += " maptypechanged infowindowopen infowindowbeforeclose";
+                delegatedEvents += " infowindowclose addoverlay removeoverlay";
+                delegatedEvents += " clearoverlays mouseover mouseout";
+                delegatedEvents += " dragstart drag dragend load";
+                
                 delegatedEvents = delegatedEvents.split(' ');
                 $.each(delegatedEvents, function (index, eventname) {
                     GEvent.addListener(map, eventname, function () {
