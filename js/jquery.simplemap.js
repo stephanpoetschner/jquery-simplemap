@@ -6,7 +6,7 @@
     }
     var geocoder = new GClientGeocoder();
     $(document).unload(GUnload);
-    
+
     var fuzzyInterpretValue = function (obj) {
         obj = obj || {};
         if (typeof(obj) === 'string') {
@@ -109,10 +109,14 @@
                 delegatedEvents += " dragstart drag dragend load";
                 
                 delegatedEvents = delegatedEvents.split(' ');
+            
+                var manualEvent = [ 'moveend' ];
                 $.each(delegatedEvents, function (index, eventname) {
-                    GEvent.addListener(map, eventname, function () {
-                        $(domElement).trigger('map' + eventname, arguments);
-                    });
+                    if (manualEvent.indexOf(eventname) === -1) {
+                        GEvent.addListener(map, eventname, function () {
+                            $(selectedElement).trigger('map' + eventname, arguments);
+                        });
+                    }
                 });
             };
             
