@@ -235,9 +235,15 @@
                     
                     $(markerOverlay).data('_name', settings.name)
                     map.addOverlay(markerOverlay);
+                    
+                    if (address.info) {
+                        GEvent.addListener(markerOverlay, 'click', function () {
+                            map.openInfoWindowHtml(point, address.info);
+                        });
+                    }
     
                     if (settings.center) {
-                        map.setCenter(point, address.zoom || settins.defaultZoom);
+                        map.setCenter(point, address.zoom || settings.defaultZoom);
                     }
                     selectedElement.trigger('markeradded', [ markerOverlay, point ]);
                 };
