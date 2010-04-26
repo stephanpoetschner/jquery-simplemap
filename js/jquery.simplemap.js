@@ -98,7 +98,7 @@
                     var southWest = bounds.getSouthWest();
                     var northEast = bounds.getNorthEast();
                     
-                    $(domElement).trigger('mapmoveend', [center, northEast, southWest]);
+                    $(domElement).trigger('mapmoveend', [ map, center, northEast, southWest]);
                 });
                 
                 var delegatedEvents = "addmaptype removemaptype click dblclick";
@@ -114,7 +114,8 @@
                 $.each(delegatedEvents, function (index, eventname) {
                     if (manualEvent.indexOf(eventname) === -1) {
                         GEvent.addListener(map, eventname, function () {
-                            $(selectedElement).trigger('map' + eventname, arguments);
+                            $(selectedElement).trigger('map' + eventname, 
+                                $.merge([ map ], arguments));
                         });
                     }
                 });
@@ -153,7 +154,7 @@
                     var southWest = bounds.getSouthWest();
                     var northEast = bounds.getNorthEast();
                     
-                    $(selectedElement).trigger('moveend', [center, northEast, southWest]);
+                    $(selectedElement).trigger('moveend', [ map, center, northEast, southWest]);
                 };
 
                 return centerMap;
@@ -233,7 +234,7 @@
                     var markerOverlay = new GMarker(point, markerOptions);
                     if (settings.draggable) {
                         GEvent.addListener(markerOverlay, "dragend", function (point) {
-                            selectedElement.trigger('markermoved', [ markerOverlay, point ]);
+                            selectedElement.trigger('markermoved', [ map, markerOverlay, point ]);
                         });
                     }
                     
@@ -253,7 +254,7 @@
                         });
                         map.panTo(point);
                     }
-                    selectedElement.trigger('markeradded', [ markerOverlay, point ]);
+                    selectedElement.trigger('markeradded', [ map, markerOverlay, point ]);
                 };
             
                 if (address.type === 'auto') {

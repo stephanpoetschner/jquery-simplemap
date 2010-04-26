@@ -56,7 +56,8 @@
 
             });
             
-            $('#map').bind('markeradded markermoved', function (event, marker, point) {
+            $('#map').bind('markeradded markermoved', 
+                            function (event, map, marker, point) {
                 $('#lng').val(point.lng());
                 $('#lat').val(point.lat());
             });
