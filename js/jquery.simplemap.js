@@ -197,7 +197,7 @@
     // triggers events:
     // * markeradded: marker, point
     // * markermoved: marker, point
-    $.fn.drawMarker = function (addresses, settings) {
+    $.fn.addMarker = function (addresses, settings) {
 
         var defaultSettings = { 'clear': true,
                                 'center': true,
@@ -263,7 +263,7 @@
         return this;
     };
 
-    $.fn.removeOverlays = function (name) {
+    $.fn.removeMarker = function (name) {
         this.each(function () {
             var selectedElement = $(this);
             var map = selectedElement.data('_map');

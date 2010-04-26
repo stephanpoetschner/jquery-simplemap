@@ -19,9 +19,9 @@
                             'margin-bottom': '20px'});
 
             $('#map').one('moveend', function () {
-                $(this).drawMarker(); // draw Marker in the center of current view
+                $(this).addMarker(); // draw Marker in the center of current view
                 // draw multiple markers
-                $(this).drawMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien', 
+                $(this).addMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien', 
                                      { 'lat': 48.2, 'long': 36.3674 }, 
                                      { address: 'Tulln', zoom: 10 } ], 
                                      { 'clear': false });
@@ -48,7 +48,7 @@
                                     4,12, 3,11, 2,10, 1,9, 0,8, 0,7, 0,6, 0,5,
                                     0,4, 1,3, 2,2, 3,1, 4,0];
                 var options = { 'icon': myIcon };
-                $(this).drawMarker('3442 Asparn',
+                $(this).addMarker('3442 Asparn',
                                     { 'clear': false,
                                         'center': false,
                                         'draggable': false,
@@ -65,7 +65,7 @@
             
             $('#where').keyup(function () {
                 var value = $(this).val();
-                $('#map').drawMarker(value);
+                $('#map').addMarker(value);
             });
         });
     </script>
