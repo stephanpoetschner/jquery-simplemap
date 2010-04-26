@@ -57,8 +57,8 @@
     //     'address': 'Vienna, Austria' }
     
     // triggers events:
-    // * moveend: center, northEast, southWest
-    // * initialized: map
+    // * mapmoveend: center, northEast, southWest
+    // * mapinitialized: map
     $.fn.createMap = function (centers, settings) {
 
         var defaultSettings = { 'defaultZoom': 11,
@@ -72,7 +72,7 @@
             var selectedElement = $(this);
             
             var addEvents = function (map, domElement) {
-                $(domElement).trigger('initialized', [ map ]);
+                $(domElement).trigger('mapinitialized', [ map ]);
             
                 // see http://code.google.com/intl/de-AT/apis/maps/documentation/reference.html#GMap2.Events
                 GEvent.addListener(map, "addoverlay", function (overlay) {
@@ -98,7 +98,7 @@
                     var southWest = bounds.getSouthWest();
                     var northEast = bounds.getNorthEast();
                     
-                    $(domElement).trigger('moveend', [center, northEast, southWest]);
+                    $(domElement).trigger('mapmoveend', [center, northEast, southWest]);
                 });
                 
                 var delegatedEvents = "addmaptype removemaptype click dblclick";
