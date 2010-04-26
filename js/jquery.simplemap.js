@@ -243,7 +243,11 @@
                     }
     
                     if (settings.center) {
-                        map.setCenter(point, address.zoom || settings.defaultZoom);
+                        selectedElement.one('mapmoveend', function () {
+                            var targetZoom = address.zoom || settings.defaultZoom;
+                            map.setZoom(targetZoom);
+                        });
+                        map.panTo(point);
                     }
                     selectedElement.trigger('markeradded', [ markerOverlay, point ]);
                 };
