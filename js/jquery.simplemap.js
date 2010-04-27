@@ -264,6 +264,7 @@
                     var point = new GLatLng(address.latitude, address.longitude);
                     addAddressToMap(point);
                 } else if (address.type === 'locate' && geocoder) {
+                    geocoder.setViewport( map.getBounds() ); 
                     geocoder.getLatLng(address.address, function (point) {
                         if (point === null) {
                             // unable to geocode that address
