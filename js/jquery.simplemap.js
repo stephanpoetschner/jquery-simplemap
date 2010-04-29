@@ -27,6 +27,7 @@
                 }
             }
         }
+        
         return obj;
     };
     
@@ -63,7 +64,8 @@
 
         var defaultSettings = { 'defaultZoom': 11,
                                 'scroll': true,
-                                'onlyNormalMapType': true };
+                                'onlyNormalMapType': true,
+                                'useHtmlGeolocator': false };
         var settings = $.extend(defaultSettings, settings);
 
         centers = fuzzyInterpretList(centers);
@@ -170,10 +172,19 @@
                     callback(center);
                     return false;
                 } else if (value.type === 'auto') {
-                    if (google.loader.ClientLocation) {
-                        var clientLocation = google.loader.ClientLocation;
-                        var center = new GLatLng(clientLocation.latitude, clientLocation.longitude);
+                    var setLocation = function (position) {
+                        var lat = position.latitude || position.coords.latitude;
+                        var lng = position.longitude || position.coords.longitude;
+                        var center = new GLatLng(lat, lng);
                         callback(center);
+                    };
+                    if (settings.useHtmlGeolocator &&
+                            navigator && navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(setLocation);
+                        return false;
+                    } else if (google.loader && google.loader.ClientLocation) {
+                        var clientLocation = google.loader.ClientLocation;
+                        setLocation(clientLocation);
                         return false;
                     }
                 } else if (value.type === 'locate') {
