@@ -219,6 +219,7 @@
                                 'center': true,
                                 'defaultZoom': 13,
                                 'draggable': true,
+                                'infoOnHover': true,
                                 'name': 'undefined',
                                 'options': {} };
         var settings = $.extend(defaultSettings, settings);
@@ -253,9 +254,17 @@
                     map.addOverlay(markerOverlay);
                     
                     if (address.info) {
-                        GEvent.addListener(markerOverlay, 'click', function () {
-                            map.openInfoWindowHtml(point, address.info);
-                        });
+                        GEvent.addListener(markerOverlay, 
+                            (settings.infoOnHover ? 'mouseover' : 'click'), 
+                            function () {
+                                map.openInfoWindowHtml(point, address.info);
+                            });
+                        if (settings.infoOnHover) {
+                            GEvent.addListener(markerOverlay, 'mouseout',
+                                function () {
+                                    map.closeInfoWindow();
+                                });
+                        }
                     }
     
                     if (settings.center) {
