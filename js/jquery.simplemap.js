@@ -64,8 +64,7 @@
 
         var defaultSettings = { 'defaultZoom': 11,
                                 'scroll': true,
-                                'onlyNormalMapType': true,
-                                'useHtmlGeolocator': false };
+                                'onlyNormalMapType': true };
         var settings = $.extend(defaultSettings, settings);
 
         centers = fuzzyInterpretList(centers);
@@ -168,39 +167,57 @@
                 if (value.type === 'static' &&
                    value.latitude !== '' && value.latitude !== '0' &&
                    value.longitude !== '' && value.longitude !== '0') {
-                    var center = new GLatLng(value.latitude, value.longitude);
-                    callback(center);
-                    return false;
-                } else if (value.type === 'auto') {
-                    var setLocation = function (position) {
-                        var lat = position.latitude || position.coords.latitude;
-                        var lng = position.longitude || position.coords.longitude;
-                        var center = new GLatLng(lat, lng);
+                    $(map).queue('center', function () {
+                        var center = new GLatLng(value.latitude, value.longitude);
                         callback(center);
-                    };
-                    if (settings.useHtmlGeolocator &&
+                        
+                        $(map).clearQueue('center');
+                        $(this).dequeue();
+                    });
+                } else if (value.type === 'auto') {
+                    $(map).queue('center', function () {
+                        var setLocation = function (position) {
+                            var queue_item = $(this);
+                            
+                            var lat = position.latitude || position.coords.latitude;
+                            var lng = position.longitude || position.coords.longitude;
+                            var center = new GLatLng(lat, lng);
+                            callback(center);
+    
+                            $(map).clearQueue('center');
+                            queue_item.dequeue();
+                        };
+                        /*
+                        if (settings.useHtmlGeolocator &&
                             navigator && navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(setLocation);
-                        return false;
-                    } else if (google.loader && google.loader.ClientLocation) {
-                        var clientLocation = google.loader.ClientLocation;
-                        setLocation(clientLocation);
-                        return false;
-                    }
+                            navigator.geolocation.getCurrentPosition(setLocation);
+                        } else
+                        */
+                        if (google.loader && google.loader.ClientLocation) {
+                            var clientLocation = google.loader.ClientLocation;
+                            setLocation(clientLocation);
+                        }
+                    });
                 } else if (value.type === 'locate') {
 
-                    var foundAddress = function (point) {
-                        if (point !== null) {
-                            callback(point);
+                    $(map).queue('center', function () {
+                        var queue_item = $(this);
+                        var foundAddress = function (point) {
+                            if (point !== null) {
+                                callback(point);
+                                
+                                $(map).clearQueue('center');
+                                queue_item.dequeue();
+                            }
+                        };
+                    
+                        if (geocoder && value.address !== '') {
+                            geocoder.getLatLng(value.address, foundAddress);
                         }
-                    };
-                
-                    if (geocoder && value.address !== '') {
-                        geocoder.getLatLng(value.address, foundAddress);
-                        return false;
-                    }
+                    });
                 }
             });
+            $(map).dequeue('center');
         });
         return this;
     };
@@ -219,7 +236,7 @@
                                 'center': true,
                                 'defaultZoom': 13,
                                 'draggable': true,
-                                'infoOnHover': true,
+                                'infoOnHover': false,
                                 'name': 'undefined',
                                 'options': {} };
         var settings = $.extend(defaultSettings, settings);
@@ -268,11 +285,14 @@
                     }
     
                     if (settings.center) {
-                        selectedElement.one('mapmoveend', function () {
-                            var targetZoom = address.zoom || settings.defaultZoom;
-                            map.setZoom(targetZoom);
+                        $(map).queue('center', function () {
+                            selectedElement.one('mapmoveend', function () {
+                                var targetZoom = address.zoom || settings.defaultZoom;
+                                map.setZoom(targetZoom);
+                            });
+                            map.panTo(point);
                         });
-                        map.panTo(point);
+                        $(map).dequeue('center');
                     }
                     selectedElement.trigger('markeradded', [ map, markerOverlay, point ]);
                 };
