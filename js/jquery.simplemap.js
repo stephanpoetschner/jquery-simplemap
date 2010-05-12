@@ -235,6 +235,7 @@
         var defaultSettings = { 'clear': true,
                                 'center': true,
                                 'defaultZoom': 13,
+                                'closeInfoOnLeave': true,
                                 'draggable': true,
                                 'infoOnHover': false,
                                 'name': 'undefined',
@@ -276,7 +277,7 @@
                             function () {
                                 map.openInfoWindowHtml(point, address.info);
                             });
-                        if (settings.infoOnHover) {
+                        if (settings.infoOnHover && settings.closeInfoOnLeave) {
                             GEvent.addListener(markerOverlay, 'mouseout',
                                 function () {
                                     map.closeInfoWindow();
