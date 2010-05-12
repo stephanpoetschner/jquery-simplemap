@@ -291,6 +291,7 @@
                     }
     
                     if (settings.center) {
+                        $(map).clearQueue('center');
                         $(map).queue('center', function () {
                             selectedElement.one('mapmoveend', function () {
                                 var targetZoom = address.zoom || settings.defaultZoom;
