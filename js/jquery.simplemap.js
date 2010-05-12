@@ -59,12 +59,13 @@
     
     // triggers events:
     // * mapmoveend: center, northEast, southWest
-    // * mapinitialized: map
+    // * mapinitialized: map, uiOptions (if defaultUi is enabled)
     $.fn.createMap = function (centers, settings) {
 
         var defaultSettings = { 'defaultZoom': 11,
                                 'scroll': true,
-                                'onlyNormalMapType': true };
+                                'onlyNormalMapType': true,
+                                'defaultUi': true }; // if set, scroll and onlyNormalMapType are unused
         var settings = $.extend(defaultSettings, settings);
 
         centers = fuzzyInterpretList(centers);
@@ -129,20 +130,24 @@
                 throw 'Containing more than one element.';
             }
             var map = new GMap2(this);
-            map.setUIToDefault();
 
-            var customUI = map.getDefaultUI();
-            if (!settings.scroll) {
-                customUI.zoom.scrollwheel = false;
+            if (settings.defaultUi) {
+                var customUI = map.getDefaultUI();
+                if (!settings.scroll) {
+                    customUI.zoom.scrollwheel = false;
+                }
+                
+                if (settings.onlyNormalMapType) {
+                    customUI.maptypes.hybrid = false;
+                    customUI.maptypes.satellite = false;
+                    customUI.maptypes.physical = false;
+                }
             }
-            map.setUI(customUI);
             
             selectedElement.data('_map', map);
             
-            if (settings.onlyNormalMapType) {
-                map.removeMapType(G_HYBRID_MAP);
-                map.removeMapType(G_SATELLITE_MAP);
-                map.removeMapType(G_PHYSICAL_MAP);
+            if (settings.defaultUi) {
+                map.setUI(customUI);
             }
             
             addEvents(map, this);
