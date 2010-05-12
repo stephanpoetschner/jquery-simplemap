@@ -112,8 +112,9 @@
                 delegatedEvents = delegatedEvents.split(' ');
             
                 var manualEvent = [ 'moveend' ];
+                
                 $.each(delegatedEvents, function (index, eventname) {
-                    if (manualEvent.indexOf(eventname) === -1) {
+                    if ($.inArray(manualEvent, eventname) === -1) {
                         GEvent.addListener(map, eventname, function () {
                             $(selectedElement).trigger('map' + eventname, 
                                 $.merge([ map ], arguments));
