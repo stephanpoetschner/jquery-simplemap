@@ -74,8 +74,6 @@
             var selectedElement = $(this);
             
             var addEvents = function (map, domElement) {
-                $(domElement).trigger('mapinitialized', [ map ]);
-            
                 // see http://code.google.com/intl/de-AT/apis/maps/documentation/reference.html#GMap2.Events
                 GEvent.addListener(map, "addoverlay", function (overlay) {
                     var overlays = selectedElement.data('_overlays') || {};
@@ -145,6 +143,7 @@
             }
             
             selectedElement.data('_map', map);
+            $(this).trigger('mapinitialized', [ map, customUI ]);
             
             if (settings.defaultUi) {
                 map.setUI(customUI);
