@@ -353,8 +353,8 @@
     $.serializeAddress = function (userSettings) {
         var defaultSettings = {'street': '',
                                 'zip': '',
-                                'city': '',
-                                'country': 'Ã–sterreich'
+                                'city': '', 
+                                'country': ''
                 };
 
         var s = $.extend(defaultSettings, userSettings);
