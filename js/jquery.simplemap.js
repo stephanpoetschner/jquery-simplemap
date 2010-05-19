@@ -177,20 +177,19 @@
                         callback(center);
                         
                         $(map).clearQueue('center');
-                        $(this).dequeue();
+                        $(this).dequeue('center');
                     });
                 } else if (value.type === 'auto') {
                     $(map).queue('center', function () {
+                        var queue_item = $(this);
                         var setLocation = function (position) {
-                            var queue_item = $(this);
-                            
                             var lat = position.latitude || position.coords.latitude;
                             var lng = position.longitude || position.coords.longitude;
                             var center = new GLatLng(lat, lng);
                             callback(center);
     
                             $(map).clearQueue('center');
-                            queue_item.dequeue();
+                            queue_item.dequeue('center');
                         };
                         /*
                         if (settings.useHtmlGeolocator &&
@@ -201,6 +200,8 @@
                         if (google.loader && google.loader.ClientLocation) {
                             var clientLocation = google.loader.ClientLocation;
                             setLocation(clientLocation);
+                        } else {
+                            queue_item.dequeue('center');
                         }
                     });
                 } else if (value.type === 'locate') {
@@ -212,7 +213,7 @@
                                 callback(point);
                                 
                                 $(map).clearQueue('center');
-                                queue_item.dequeue();
+                                queue_item.dequeue('center');
                             }
                         };
                     
