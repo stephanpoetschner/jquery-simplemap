@@ -1,8 +1,8 @@
 "use strict";
 
 (function ($) {
-    if (!GBrowserIsCompatible()) {
-        return;
+    if (!window.GBrowserIsCompatible || !GBrowserIsCompatible()) {
+        throw "Error when initializing GMaps API in jquery.simplemap.js";
     }
     var geocoder = new GClientGeocoder();
     $(document).unload(GUnload);
