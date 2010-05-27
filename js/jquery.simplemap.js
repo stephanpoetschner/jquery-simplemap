@@ -239,20 +239,39 @@
     $.fn.addMarker = function (addresses, settings) {
 
         var defaultSettings = { 'clear': true,
-                                'center': true,
-                                'defaultZoom': 13,
-                                'closeInfoOnLeave': true,
-                                'draggable': true,
-                                'infoOnHover': false,
                                 'name': 'undefined',
-                                'options': {} };
+                                'markerOptions': {
+                                    'center': true,
+                                    'zoom': 13,
+                                    'closeInfoOnLeave': true,
+                                    'draggable': true,
+                                    'icon':null,
+                                    'info': null,
+                                    'infoOnHover': false
+                                  }
+                               };
+        // move all misplaced "options" param to "markerOptions"
+        if (settings.options && !settings.markerOptions) {
+            settings.markerOptions = settings.options;
+            delete settings['options'];
+        }
+        if (!settings.markerOptions) {
+            settings.markerOptions = {};
+        }
+        // move all misplaced single option params into markerOptions
+        $.each(settings, function (key, val)  {
+            if (settings[key] !== undefined && 
+                !(key in defaultSettings)) {
+                settings.markerOptions[key] = settings[key];
+                delete settings[key];
+            }
+        });
+        settings.markerOptions = $.extend(defaultSettings.markerOptions, 
+                                          settings.markerOptions);
         var settings = $.extend(defaultSettings, settings);
         
         addresses = fuzzyInterpretList(addresses);
         
-        var markerOptions = $.extend({ 'draggable': settings.draggable },
-                                        settings.options );
-
         this.each(function () {
             var selectedElement = $(this);
             
@@ -266,9 +285,22 @@
             }
             
             $.each(addresses, function (index, address) {
+                if (!address.markerOptions) {
+                    address.markerOptions = {};
+                }
+                // move all misplaced option params
+                $.each(defaultSettings.markerOptions, function (key, val)  {
+                    if (address[key] !== undefined) {
+                        address.markerOptions[key] = address[key];
+                        delete address[key];
+                    }
+                });
+                
+                address.markerOptions = $.extend({}, settings.markerOptions,
+                                                 address.markerOptions);
                 var addAddressToMap = function (point) {
-                    var markerOverlay = new GMarker(point, markerOptions);
-                    if (settings.draggable) {
+                    var markerOverlay = new GMarker(point, address.markerOptions);
+                    if (address.markerOptions.draggable) {
                         GEvent.addListener(markerOverlay, "dragend", function (point) {
                             selectedElement.trigger('markermoved', [ map, markerOverlay, point ]);
                         });
@@ -277,13 +309,17 @@
                     $(markerOverlay).data('_name', settings.name)
                     map.addOverlay(markerOverlay);
                     
-                    if (address.info) {
+                    if (address.markerOptions.info) {
                         GEvent.addListener(markerOverlay, 
-                            (settings.infoOnHover ? 'mouseover' : 'click'), 
+                            (address.markerOptions.infoOnHover ? 
+                                                'mouseover' : 
+                                                'click'), 
                             function () {
-                                map.openInfoWindowHtml(point, address.info);
+                                map.openInfoWindowHtml(point, 
+                                                       address.markerOptions.info);
                             });
-                        if (settings.infoOnHover && settings.closeInfoOnLeave) {
+                        if (address.markerOptions.infoOnHover && 
+                            address.markerOptions.closeInfoOnLeave) {
                             GEvent.addListener(markerOverlay, 'mouseout',
                                 function () {
                                     map.closeInfoWindow();
@@ -291,11 +327,11 @@
                         }
                     }
     
-                    if (settings.center) {
+                    if (address.markerOptions.center) {
                         $(map).clearQueue('center');
                         $(map).queue('center', function () {
                             selectedElement.one('mapmoveend', function () {
-                                var targetZoom = address.zoom || settings.defaultZoom;
+                                var targetZoom = address.markerOptions.zoom;
                                 map.setZoom(targetZoom);
                             });
                             map.panTo(point);
