@@ -242,12 +242,12 @@
                                 'name': 'undefined',
                                 'markerOptions': {
                                     'center': true,
-                                    'zoom': 13,
                                     'closeInfoOnLeave': true,
                                     'draggable': true,
                                     'icon':null,
                                     'info': null,
-                                    'infoOnHover': false
+                                    'infoOnHover': false,
+                                    'zoom': 13
                                   }
                                };
         // move all misplaced "options" param to "markerOptions"
