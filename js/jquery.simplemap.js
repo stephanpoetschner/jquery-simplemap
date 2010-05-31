@@ -338,6 +338,7 @@
                                 map.setZoom(targetZoom);
                             });
                             map.panTo(point);
+                            $(this).dequeue('center');
                         });
                         $(map).dequeue('center');
                     }
