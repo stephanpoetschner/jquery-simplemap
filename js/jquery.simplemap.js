@@ -250,6 +250,9 @@
                                     'zoom': 13
                                   }
                                };
+        
+        settings = settings || {};
+        
         // move all misplaced "options" param to "markerOptions"
         if (settings.options && !settings.markerOptions) {
             settings.markerOptions = settings.options;
