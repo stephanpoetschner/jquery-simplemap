@@ -190,7 +190,6 @@
                         callback(center);
                         
                         $(map).clearQueue('center');
-                        $(this).dequeue('center');
                     });
                 } else if (value.type === 'auto') {
                     $(map).queue('center', function () {
@@ -202,7 +201,6 @@
                             callback(center);
     
                             $(map).clearQueue('center');
-                            queue_item.dequeue('center');
                         };
                         /*
                         if (settings.useHtmlGeolocator &&
@@ -214,6 +212,8 @@
                             var clientLocation = google.loader.ClientLocation;
                             setLocation(clientLocation);
                         } else {
+                            // remove function from queue but keep other 
+                            // localization requests in queue
                             queue_item.dequeue('center');
                         }
                     });
@@ -226,12 +226,13 @@
                                 callback(point);
                                 
                                 $(map).clearQueue('center');
-                                queue_item.dequeue('center');
                             }
                         };
                     
                         if (geocoder && value.address !== '') {
                             geocoder.getLatLng(value.address, foundAddress);
+                        } else {
+                            queue_item.dequeue('center');
                         }
                     });
                 }
