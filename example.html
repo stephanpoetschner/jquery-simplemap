@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sample for jQuery.simpleMap Plugin</tile>
+    <title>Sample for jQuery.simpleMap Plugin</title>
     <script src="http://www.google.com/jsapi?key=<my_apikey>"></script>
     <script>
         google.load("jquery", "1");
@@ -12,19 +12,31 @@
 
     <script src="js/jquery.simplemap.js"></script>
     <script>
+        // usage: log('inside coolFunc',this,arguments);
+        // paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+        window.log = function(){
+            log.history = log.history || [];   // store logs to an array for reference
+            log.history.push(arguments);
+            if(this.console){
+                console.log( Array.prototype.slice.call(arguments) );
+            }
+        };
     
         $(function () {
-            $('#map').css({ 'width': '590px',
+            $('.map').css({ 'width': '590px',
                             'height': '400px',
                             'margin-bottom': '20px'});
 
-            $('#map').one('mapmoveend', function () {
+            $('#map1').createMap([ { 'type': 'auto' }, 'Prag', 'Paris', { 'lat': 48.2, 'lng': 36.3674 } ]);
+
+            $('#map2').one('mapmoveend', function () {
                 $(this).addMarker(); // draw Marker in the center of current view
                 // draw multiple markers
                 $(this).addMarker([ 'Wollzeile, Wien', 'Denisgasse, Wien', 
                                      { 'lat': 48.2, 'long': 36.3674 }, 
                                      { address: 'Tulln', zoom: 10, info: 'Blumenstadt', draggable:false } ], 
-                                     { 'clear': false });
+                                     
+                                     { 'clear': false }); // global marker settings
                 
                 // draw marker with custom icon
 
@@ -56,25 +68,29 @@
 
             });
             
-            $('#map').bind('markeradded markermoved', 
+            $('#map2').bind('markeradded markermoved', 
                             function (event, map, marker, point) {
                 $('#lng').val(point.lng());
                 $('#lat').val(point.lat());
             });
             
-            $('#map').createMap();
+            $('#map2').createMap();
             
             $('#where').keyup(function () {
                 var value = $(this).val();
-                $('#map').addMarker(value);
+                $('#map2').addMarker(value);
             });
         });
     </script>
 </head>
 
 <body>
+    <div id="map1" class="map"></div>
+    
+    <br />
+    
     <input type="text" id="where" />
-    <div id="map"></div>
+    <div id="map2" class="map"></div>
     <input type="text" id="lat" />
     <input type="text" id="lng" />
 </body>
