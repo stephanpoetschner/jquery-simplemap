@@ -68,8 +68,6 @@
                                 'defaultUi': true }; // if set, scroll and onlyNormalMapType are unused
         var settings = $.extend(defaultSettings, settings);
 
-        centers = fuzzyInterpretList(centers);
-
         this.each(function () {
             var selectedElement = $(this);
             
@@ -151,6 +149,21 @@
             
             addEvents(map, this);
             
+            selectedElement.centerMap(centers, settings);
+        });
+        return this;
+    };
+    
+    $.fn.centerMap = function (centers, settings) {
+        var defaultSettings = { 'defaultZoom': 11 };
+        var settings = $.extend(defaultSettings, settings);
+
+        centers = fuzzyInterpretList(centers);
+
+        this.each(function () {
+            var selectedElement = $(this);
+            var map = selectedElement.data('_map');
+
             var getCenterMapCallback = function (zoomlevel) {
                 zoomlevel = zoomlevel || settings.defaultZoom;
                 var centerMap = function (center) {
@@ -414,4 +427,3 @@
     };
   
 }) (jQuery);
-
