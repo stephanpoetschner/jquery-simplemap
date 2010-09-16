@@ -87,7 +87,7 @@
                     var overlays = selectedElement.data('_overlays');
                     var name = $(overlay).data('_name');
                     var named_overlays = overlays[name];
-                    named_overlays.splice(named_overlays.indexOf(overlay), 1);
+                    named_overlays.splice($.inArray(named_overlays, overlay), 1);
                     overlays[name] = named_overlays;
                     selectedElement.data('_overlays', overlays);
                 });
